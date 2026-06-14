@@ -13,8 +13,7 @@ widgets:
     script_name: "world-cup-widget"
     env:
       # football-data.org 世界杯赛程 / 比分来源。
-      # 脚本会自动请求：
-      # https://api.football-data.org/v4/competitions/WC/matches?dateFrom=YYYY-MM-DD&dateTo=YYYY-MM-DD
+      # 脚本会按北京时间展示昨天、今天、明天，并自动多取一天 UTC 数据避免凌晨场次遗漏。
       DATA_SOURCE: "football-data"
       API_KEY: "你的 football-data.org token"
 

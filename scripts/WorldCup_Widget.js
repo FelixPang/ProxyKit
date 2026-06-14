@@ -1,3 +1,120 @@
+const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+const COLORS = {
+  background: { light: '#F7F9FC', dark: '#101418' },
+  card: { light: '#FFFFFF', dark: '#1B2227' },
+  cardSubtle: { light: '#EEF3F7', dark: '#202A31' },
+  text: { light: '#101418', dark: '#F7F9FC' },
+  muted: { light: '#68737D', dark: '#A7B0B8' },
+  faint: { light: '#8A949E', dark: '#7F8A94' },
+  accent: { light: '#0A7A5A', dark: '#35D399' },
+  live: { light: '#B45309', dark: '#FFD166' },
+  error: { light: '#D70015', dark: '#FF453A' },
+};
+
+const TEAM_DATA = {
+  ALB: team('阿尔巴尼亚', 'AL', ['Albania']),
+  ALG: team('阿尔及利亚', 'DZ', ['Algeria']),
+  ANG: team('安哥拉', 'AO', ['Angola']),
+  ARG: team('阿根廷', 'AR', ['Argentina']),
+  AUS: team('澳大利亚', 'AU', ['Australia']),
+  AUT: team('奥地利', 'AT', ['Austria']),
+  BEL: team('比利时', 'BE', ['Belgium']),
+  BEN: team('贝宁', 'BJ', ['Benin']),
+  BFA: team('布基纳法索', 'BF', ['Burkina Faso']),
+  BIH: team('波黑', 'BA', ['Bosnia and Herzegovina', 'Bosnia-Herzegovina']),
+  BOL: team('玻利维亚', 'BO', ['Bolivia']),
+  BRA: team('巴西', 'BR', ['Brazil']),
+  BUL: team('保加利亚', 'BG', ['Bulgaria']),
+  CAN: team('加拿大', 'CA', ['Canada']),
+  CHI: team('智利', 'CL', ['Chile']),
+  CHN: team('中国', 'CN', ['China PR', 'China']),
+  CIV: team('科特迪瓦', 'CI', ["Cote d'Ivoire", "Côte d'Ivoire", 'Ivory Coast']),
+  CMR: team('喀麦隆', 'CM', ['Cameroon']),
+  COD: team('民主刚果', 'CD', ['Congo DR', 'DR Congo', 'Congo-Kinshasa']),
+  COL: team('哥伦比亚', 'CO', ['Colombia']),
+  CPV: team('佛得角', 'CV', ['Cape Verde', 'Cabo Verde']),
+  CRC: team('哥斯达黎加', 'CR', ['Costa Rica']),
+  CRO: team('克罗地亚', 'HR', ['Croatia']),
+  CUW: team('库拉索', 'CW', ['Curaçao', 'Curacao']),
+  CZE: team('捷克', 'CZ', ['Czechia', 'Czech Republic']),
+  DEN: team('丹麦', 'DK', ['Denmark']),
+  DOM: team('多米尼加', 'DO', ['Dominican Republic']),
+  ECU: team('厄瓜多尔', 'EC', ['Ecuador']),
+  EGY: team('埃及', 'EG', ['Egypt']),
+  ENG: team('英格兰', 'GB', ['England']),
+  ESP: team('西班牙', 'ES', ['Spain']),
+  SLV: team('萨尔瓦多', 'SV', ['El Salvador']),
+  FIN: team('芬兰', 'FI', ['Finland']),
+  FRA: team('法国', 'FR', ['France']),
+  GAB: team('加蓬', 'GA', ['Gabon']),
+  GEO: team('格鲁吉亚', 'GE', ['Georgia']),
+  GER: team('德国', 'DE', ['Germany']),
+  GHA: team('加纳', 'GH', ['Ghana']),
+  GRE: team('希腊', 'GR', ['Greece']),
+  GUA: team('危地马拉', 'GT', ['Guatemala']),
+  HAI: team('海地', 'HT', ['Haiti']),
+  HON: team('洪都拉斯', 'HN', ['Honduras']),
+  HUN: team('匈牙利', 'HU', ['Hungary']),
+  IDN: team('印度尼西亚', 'ID', ['Indonesia']),
+  IND: team('印度', 'IN', ['India']),
+  IRN: team('伊朗', 'IR', ['Iran', 'IR Iran']),
+  IRQ: team('伊拉克', 'IQ', ['Iraq']),
+  ISL: team('冰岛', 'IS', ['Iceland']),
+  ISR: team('以色列', 'IL', ['Israel']),
+  ITA: team('意大利', 'IT', ['Italy']),
+  JAM: team('牙买加', 'JM', ['Jamaica']),
+  JOR: team('约旦', 'JO', ['Jordan']),
+  JPN: team('日本', 'JP', ['Japan']),
+  KOR: team('韩国', 'KR', ['Korea Republic', 'South Korea', 'Republic of Korea']),
+  KSA: team('沙特阿拉伯', 'SA', ['Saudi Arabia']),
+  KUW: team('科威特', 'KW', ['Kuwait']),
+  MAR: team('摩洛哥', 'MA', ['Morocco']),
+  MAS: team('马来西亚', 'MY', ['Malaysia']),
+  MEX: team('墨西哥', 'MX', ['Mexico']),
+  MKD: team('北马其顿', 'MK', ['North Macedonia', 'Macedonia FYR']),
+  MLI: team('马里', 'ML', ['Mali']),
+  MNE: team('黑山', 'ME', ['Montenegro']),
+  NED: team('荷兰', 'NL', ['Netherlands', 'Holland']),
+  NGA: team('尼日利亚', 'NG', ['Nigeria']),
+  NIR: team('北爱尔兰', 'GB', ['Northern Ireland']),
+  NOR: team('挪威', 'NO', ['Norway']),
+  NZL: team('新西兰', 'NZ', ['New Zealand']),
+  OMA: team('阿曼', 'OM', ['Oman']),
+  PAN: team('巴拿马', 'PA', ['Panama']),
+  PAR: team('巴拉圭', 'PY', ['Paraguay']),
+  PER: team('秘鲁', 'PE', ['Peru']),
+  POL: team('波兰', 'PL', ['Poland']),
+  POR: team('葡萄牙', 'PT', ['Portugal']),
+  PRK: team('朝鲜', 'KP', ['Korea DPR', 'North Korea']),
+  QAT: team('卡塔尔', 'QA', ['Qatar']),
+  ROU: team('罗马尼亚', 'RO', ['Romania']),
+  RSA: team('南非', 'ZA', ['South Africa']),
+  RUS: team('俄罗斯', 'RU', ['Russia']),
+  SCO: team('苏格兰', 'GB', ['Scotland']),
+  SEN: team('塞内加尔', 'SN', ['Senegal']),
+  SRB: team('塞尔维亚', 'RS', ['Serbia']),
+  SUR: team('苏里南', 'SR', ['Suriname']),
+  SUI: team('瑞士', 'CH', ['Switzerland']),
+  SVK: team('斯洛伐克', 'SK', ['Slovakia']),
+  SVN: team('斯洛文尼亚', 'SI', ['Slovenia']),
+  SWE: team('瑞典', 'SE', ['Sweden']),
+  THA: team('泰国', 'TH', ['Thailand']),
+  TRI: team('特立尼达和多巴哥', 'TT', ['Trinidad and Tobago']),
+  TUN: team('突尼斯', 'TN', ['Tunisia']),
+  TUR: team('土耳其', 'TR', ['Turkey', 'Türkiye']),
+  UAE: team('阿联酋', 'AE', ['United Arab Emirates', 'UAE']),
+  UKR: team('乌克兰', 'UA', ['Ukraine']),
+  URU: team('乌拉圭', 'UY', ['Uruguay']),
+  USA: team('美国', 'US', ['United States', 'USA', 'United States of America']),
+  UZB: team('乌兹别克斯坦', 'UZ', ['Uzbekistan']),
+  VEN: team('委内瑞拉', 'VE', ['Venezuela']),
+  VIE: team('越南', 'VN', ['Vietnam']),
+  WAL: team('威尔士', 'GB', ['Wales']),
+};
+
+const TEAM_BY_NAME = buildTeamNameIndex();
+
 export default async function(ctx) {
   const env = ctx.env || {};
   const now = new Date();
@@ -64,10 +181,13 @@ function isFootballDataSource(env) {
 function buildApiUrl(env, now) {
   const from = addDays(now, -1);
   const to = addDays(now, 1);
+  const footballDataFrom = addDays(now, -2);
   const values = {
     dates: compactDay(from) + '-' + compactDay(to),
     dateFrom: dayKey(from),
     dateTo: dayKey(to),
+    footballDataDateFrom: dayKey(footballDataFrom),
+    footballDataDateTo: dayKey(to),
     yyyymmddFrom: compactDay(from),
     yyyymmddTo: compactDay(to),
   };
@@ -80,7 +200,7 @@ function buildApiUrl(env, now) {
   }
 
   if (isFootballDataSource(env) && !env.API_URL) {
-    return 'https://api.football-data.org/v4/competitions/WC/matches?dateFrom=' + values.dateFrom + '&dateTo=' + values.dateTo;
+    return 'https://api.football-data.org/v4/competitions/WC/matches?dateFrom=' + values.footballDataDateFrom + '&dateTo=' + values.footballDataDateTo;
   }
 
   if (isEspnSource(env) && env.API_URL.indexOf('dates=') < 0) {
@@ -92,8 +212,8 @@ function buildApiUrl(env, now) {
 
   if (isFootballDataSource(env) && env.API_URL.indexOf('dateFrom=') < 0 && env.API_URL.indexOf('dateTo=') < 0) {
     return appendQuery(env.API_URL, {
-      dateFrom: values.dateFrom,
-      dateTo: values.dateTo,
+      dateFrom: values.footballDataDateFrom,
+      dateTo: values.footballDataDateTo,
     });
   }
 
@@ -101,7 +221,7 @@ function buildApiUrl(env, now) {
 }
 
 function fillTemplate(template, values) {
-  return template.replace(/\{(dates|dateFrom|dateTo|yyyymmddFrom|yyyymmddTo)\}/g, function(_, key) {
+  return template.replace(/\{(dates|dateFrom|dateTo|footballDataDateFrom|footballDataDateTo|yyyymmddFrom|yyyymmddTo)\}/g, function(_, key) {
     return values[key];
   });
 }
@@ -171,14 +291,14 @@ function normalizeOne(item, now) {
   const kickoff = toDate(kickoffValue);
   if (!kickoff) return null;
 
-  const home = teamName(homeCompetitor) || teamName(pick(item, [
+  const homeTeam = normalizeTeam(homeCompetitor || pick(item, [
     'home',
     'homeTeam',
     'teamHome',
     'teams.home',
     'competitors.0',
   ]));
-  const away = teamName(awayCompetitor) || teamName(pick(item, [
+  const awayTeam = normalizeTeam(awayCompetitor || pick(item, [
     'away',
     'awayTeam',
     'teamAway',
@@ -227,8 +347,10 @@ function normalizeOne(item, now) {
 
   return {
     kickoff,
-    home,
-    away,
+    home: homeTeam.name,
+    homeFlag: homeTeam.flag,
+    away: awayTeam.name,
+    awayFlag: awayTeam.flag,
     status: normalizeStatus(statusValue, kickoff, now),
     minute: minute == null ? '' : String(minute),
     homeScore,
@@ -319,13 +441,13 @@ function renderCircular(days) {
   return {
     type: 'widget',
     padding: 4,
-    backgroundColor: '#0A4D3C',
+    backgroundColor: COLORS.background,
     children: [
       {
         type: 'text',
         text: '世界杯',
         font: { size: 'caption2', weight: 'semibold' },
-        textColor: '#FFFFFF',
+        textColor: COLORS.text,
         textAlign: 'center',
         maxLines: 1,
         minScale: 0.55,
@@ -334,7 +456,7 @@ function renderCircular(days) {
         type: 'text',
         text: match ? compactStatus(match) : '暂无',
         font: { size: 'caption1', weight: 'bold' },
-        textColor: match && match.status === 'live' ? '#FFD166' : '#FFFFFFCC',
+        textColor: match && match.status === 'live' ? COLORS.live : COLORS.muted,
         textAlign: 'center',
         maxLines: 1,
         minScale: 0.5,
@@ -349,20 +471,20 @@ function renderRectangular(days) {
     type: 'widget',
     padding: [6, 8, 6, 8],
     gap: 3,
-    backgroundColor: '#0A4D3C',
+    backgroundColor: COLORS.background,
     children: [
       {
         type: 'text',
         text: '世界杯赛程',
         font: { size: 'caption1', weight: 'bold' },
-        textColor: '#FFFFFF',
+        textColor: COLORS.text,
         maxLines: 1,
       },
       {
         type: 'text',
-        text: match ? lineText(match, true) : '昨天、今天、明天暂无比赛',
+        text: match ? lineText(match, true) : '暂无比赛',
         font: { size: 'caption2', weight: 'medium' },
-        textColor: '#FFFFFFDD',
+        textColor: COLORS.muted,
         maxLines: 2,
         minScale: 0.65,
       },
@@ -373,7 +495,7 @@ function renderRectangular(days) {
 function renderSmall(days, state, now) {
   const today = days[1];
   return shell(now, state, [
-    header('世界杯赛程', '今天'),
+    header('世界杯赛程'),
     {
       type: 'stack',
       direction: 'column',
@@ -385,7 +507,7 @@ function renderSmall(days, state, now) {
 
 function renderMedium(days, state, now) {
   return shell(now, state, [
-    header('世界杯赛程', '昨天 / 今天 / 明天'),
+    header('世界杯赛程'),
     {
       type: 'stack',
       direction: 'row',
@@ -399,7 +521,7 @@ function renderMedium(days, state, now) {
 
 function renderLarge(days, state, now) {
   const children = [
-    header('世界杯赛程', '昨天 / 今天 / 明天'),
+    header('世界杯赛程'),
   ];
 
   days.forEach(function(day) {
@@ -417,7 +539,7 @@ function shell(now, state, children, padding) {
       type: 'text',
       text: state.error,
       font: { size: 'caption1', weight: 'medium' },
-      textColor: '#FFD166',
+      textColor: COLORS.error,
       maxLines: 2,
       minScale: 0.7,
     });
@@ -428,7 +550,7 @@ function shell(now, state, children, padding) {
     date: now.toISOString(),
     format: 'relative',
     font: { size: 'caption2', weight: 'regular' },
-    textColor: '#D7FFF1AA',
+    textColor: COLORS.faint,
     maxLines: 1,
   });
 
@@ -437,18 +559,12 @@ function shell(now, state, children, padding) {
     refreshAfter: nextRefresh(now),
     padding,
     gap: 10,
-    backgroundGradient: {
-      type: 'linear',
-      colors: ['#092D2B', '#0A4D3C', '#12355B'],
-      stops: [0, 0.56, 1],
-      startPoint: { x: 0, y: 0 },
-      endPoint: { x: 1, y: 1 },
-    },
+    backgroundColor: COLORS.background,
     children: body,
   };
 }
 
-function header(title, subtitle) {
+function header(title) {
   return {
     type: 'stack',
     direction: 'row',
@@ -458,7 +574,7 @@ function header(title, subtitle) {
       {
         type: 'image',
         src: 'sf-symbol:trophy.fill',
-        color: '#FFD166',
+        color: COLORS.accent,
         width: 17,
         height: 17,
       },
@@ -466,18 +582,9 @@ function header(title, subtitle) {
         type: 'text',
         text: title,
         font: { size: 'headline', weight: 'bold' },
-        textColor: '#FFFFFF',
+        textColor: COLORS.text,
         maxLines: 1,
         minScale: 0.75,
-      },
-      { type: 'spacer' },
-      {
-        type: 'text',
-        text: subtitle,
-        font: { size: 'caption1', weight: 'medium' },
-        textColor: '#D7FFF1CC',
-        maxLines: 1,
-        minScale: 0.65,
       },
     ],
   };
@@ -490,14 +597,14 @@ function dayColumn(day, limit) {
     gap: 6,
     flex: 1,
     padding: [8, 8, 8, 8],
-    backgroundColor: '#FFFFFF14',
+    backgroundColor: COLORS.card,
     borderRadius: 8,
     children: [
       {
         type: 'text',
         text: day.title,
         font: { size: 'caption1', weight: 'bold' },
-        textColor: '#FFFFFF',
+        textColor: COLORS.text,
         maxLines: 1,
       },
     ].concat(matchRows(day.matches, limit, false)),
@@ -510,7 +617,7 @@ function daySection(day, limit) {
     direction: 'column',
     gap: 6,
     padding: [9, 10, 9, 10],
-    backgroundColor: '#FFFFFF14',
+    backgroundColor: COLORS.card,
     borderRadius: 8,
     children: [
       {
@@ -522,14 +629,14 @@ function daySection(day, limit) {
             type: 'text',
             text: day.title,
             font: { size: 'subheadline', weight: 'bold' },
-            textColor: '#FFFFFF',
+            textColor: COLORS.text,
           },
           { type: 'spacer' },
           {
             type: 'text',
             text: day.matches.length + ' 场',
             font: { size: 'caption1', weight: 'medium' },
-            textColor: '#D7FFF1BB',
+            textColor: COLORS.muted,
           },
         ],
       },
@@ -550,7 +657,7 @@ function matchRows(matches, limit, showTime) {
       type: 'text',
       text: '暂无比赛',
       font: { size: 'caption1', weight: 'regular' },
-      textColor: '#D7FFF199',
+      textColor: COLORS.faint,
       maxLines: 1,
     });
   } else if (matches.length > limit) {
@@ -558,7 +665,7 @@ function matchRows(matches, limit, showTime) {
       type: 'text',
       text: '另有 ' + (matches.length - limit) + ' 场',
       font: { size: 'caption2', weight: 'medium' },
-      textColor: '#D7FFF1AA',
+      textColor: COLORS.faint,
       maxLines: 1,
     });
   }
@@ -577,7 +684,7 @@ function matchRow(match, showTime) {
         type: 'text',
         text: formatTime(match.kickoff),
         font: { size: 'caption2', weight: 'medium', family: 'Menlo' },
-        textColor: match.status === 'live' ? '#FFD166' : '#D7FFF1BB',
+        textColor: match.status === 'live' ? COLORS.live : COLORS.muted,
         maxLines: 1,
         minScale: 0.6,
       },
@@ -585,7 +692,7 @@ function matchRow(match, showTime) {
         type: 'text',
         text: teamLine(match),
         font: { size: 'caption1', weight: 'semibold' },
-        textColor: '#FFFFFF',
+        textColor: COLORS.text,
         flex: 1,
         maxLines: 1,
         minScale: 0.55,
@@ -594,7 +701,7 @@ function matchRow(match, showTime) {
         type: 'text',
         text: statusBadge(match),
         font: { size: 'caption2', weight: 'bold' },
-        textColor: match.status === 'live' ? '#FFD166' : '#FFFFFFCC',
+        textColor: match.status === 'live' ? COLORS.live : COLORS.muted,
         textAlign: 'right',
         maxLines: 1,
         minScale: 0.55,
@@ -604,7 +711,7 @@ function matchRow(match, showTime) {
 }
 
 function teamLine(match) {
-  return match.home + ' vs ' + match.away;
+  return flagName(match.homeFlag, match.home) + ' vs ' + flagName(match.awayFlag, match.away);
 }
 
 function lineText(match, withTime) {
@@ -692,7 +799,44 @@ function get(obj, path) {
   return current;
 }
 
-function teamName(value) {
+function team(cnName, alpha2, aliases) {
+  return {
+    name: cnName,
+    flag: flagEmoji(alpha2),
+    aliases: aliases || [],
+  };
+}
+
+function buildTeamNameIndex() {
+  const index = {};
+
+  for (const code of Object.keys(TEAM_DATA)) {
+    const item = TEAM_DATA[code];
+    index[normalizeLookup(code)] = item;
+    index[normalizeLookup(item.name)] = item;
+
+    for (const alias of item.aliases) {
+      index[normalizeLookup(alias)] = item;
+    }
+  }
+
+  return index;
+}
+
+function normalizeTeam(value) {
+  const rawName = rawTeamName(value);
+  const code = rawTeamCode(value);
+  const byCode = code ? TEAM_DATA[String(code).toUpperCase()] : null;
+  const byName = rawName ? TEAM_BY_NAME[normalizeLookup(rawName)] : null;
+  const info = byCode || byName;
+
+  return {
+    name: info ? info.name : rawName,
+    flag: info ? info.flag : '',
+  };
+}
+
+function rawTeamName(value) {
   if (value == null) return '';
   if (typeof value === 'string') return value;
   return pick(value, [
@@ -705,6 +849,42 @@ function teamName(value) {
     'team.shortDisplayName',
     'team.name',
   ]) || '';
+}
+
+function rawTeamCode(value) {
+  if (value == null || typeof value === 'string') return '';
+  return pick(value, [
+    'tla',
+    'code',
+    'abbreviation',
+    'countryCode',
+    'team.tla',
+    'team.abbreviation',
+    'team.country',
+  ]) || '';
+}
+
+function normalizeLookup(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, ' ')
+    .trim();
+}
+
+function flagName(flag, name) {
+  return (flag ? flag + ' ' : '') + name;
+}
+
+function flagEmoji(alpha2) {
+  const code = String(alpha2 || '').toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code)) return '';
+  return String.fromCodePoint(
+    0x1F1E6 + code.charCodeAt(0) - 65,
+    0x1F1E6 + code.charCodeAt(1) - 65
+  );
 }
 
 function toScore(value) {
@@ -727,27 +907,42 @@ function addDays(date, days) {
 }
 
 function dayKey(date) {
+  const parts = beijingParts(date);
   return [
-    date.getFullYear(),
-    pad(date.getMonth() + 1),
-    pad(date.getDate()),
+    parts.year,
+    pad(parts.month),
+    pad(parts.day),
   ].join('-');
 }
 
 function compactDay(date) {
+  const parts = beijingParts(date);
   return [
-    date.getFullYear(),
-    pad(date.getMonth() + 1),
-    pad(date.getDate()),
+    parts.year,
+    pad(parts.month),
+    pad(parts.day),
   ].join('');
 }
 
 function formatDay(date) {
-  return pad(date.getMonth() + 1) + '/' + pad(date.getDate());
+  const parts = beijingParts(date);
+  return pad(parts.month) + '/' + pad(parts.day);
 }
 
 function formatTime(date) {
-  return pad(date.getHours()) + ':' + pad(date.getMinutes());
+  const parts = beijingParts(date);
+  return pad(parts.hour) + ':' + pad(parts.minute);
+}
+
+function beijingParts(date) {
+  const beijing = new Date(date.getTime() + BEIJING_OFFSET_MS);
+  return {
+    year: beijing.getUTCFullYear(),
+    month: beijing.getUTCMonth() + 1,
+    day: beijing.getUTCDate(),
+    hour: beijing.getUTCHours(),
+    minute: beijing.getUTCMinutes(),
+  };
 }
 
 function pad(value) {

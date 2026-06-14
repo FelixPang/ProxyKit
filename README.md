@@ -17,7 +17,7 @@ DATA_SOURCE: "football-data"
 API_KEY: "your football-data.org token"
 ```
 
-The widget shows yesterday, today, and tomorrow. Finished matches show scores, live matches show `进行中`, and scheduled matches show kickoff time.
+The widget shows yesterday, today, and tomorrow in Beijing time. Finished matches show scores, live matches show `进行中`, and scheduled matches show kickoff time. Team names are displayed in Chinese with country flags when the team can be matched.
 
 ### QWeather
 
