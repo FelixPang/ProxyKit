@@ -156,6 +156,7 @@ function demoMatchesJson() {
         status: 'live',
         homeScore: 1,
         awayScore: 1,
+        minute: 63,
       },
       {
         kickoff: scheduledKickoff,
@@ -987,7 +988,7 @@ function statusText(match) {
 
 function matchStatusLine(match) {
   if (match.status === 'finished') return '已结束';
-  if (match.status === 'live') return '进行中';
+  if (match.status === 'live') return statusText(match);
   if (match.status === 'other') return '待定';
   return '未开赛';
 }
