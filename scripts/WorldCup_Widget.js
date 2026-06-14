@@ -331,7 +331,7 @@ function normalizeOne(item, now) {
     'fixture.status.elapsed',
     'status.displayClock',
   ]);
-  let homeScore = toScore(homeCompetitor && homeCompetitor.score);
+  let homeScore = scoreFromSide(item, homeCompetitor, 'home');
   if (homeScore == null) homeScore = toScore(pick(item, [
     'homeScore',
     'score.home',
@@ -340,7 +340,7 @@ function normalizeOne(item, now) {
     'goals.home',
     'teams.home.score',
   ]));
-  let awayScore = toScore(awayCompetitor && awayCompetitor.score);
+  let awayScore = scoreFromSide(item, awayCompetitor, 'away');
   if (awayScore == null) awayScore = toScore(pick(item, [
     'awayScore',
     'score.away',
@@ -376,6 +376,33 @@ function findCompetitor(item, homeAway) {
   }
 
   return null;
+}
+
+function scoreFromSide(item, primary, homeAway) {
+  const direct = competitorScore(primary);
+  if (direct != null) return direct;
+
+  const competitors = pick(item, [
+    'competitions.0.competitors',
+    'competitors',
+  ]);
+  if (!Array.isArray(competitors)) return null;
+
+  const matched = competitors.find(function(competitor) {
+    return String(competitor.homeAway || '').toLowerCase() === homeAway;
+  });
+  const fallback = competitors[homeAway === 'home' ? 0 : 1];
+
+  return competitorScore(matched || fallback);
+}
+
+function competitorScore(competitor) {
+  if (!competitor) return null;
+  if (competitor.score != null) return toScore(competitor.score);
+  return toScore(pick(competitor, [
+    'score.value',
+    'score.displayValue',
+  ]));
 }
 
 function normalizeStatus(value, kickoff, now) {
@@ -582,13 +609,13 @@ function header(title, now) {
         type: 'image',
         src: 'sf-symbol:trophy.fill',
         color: COLORS.trophy,
-        width: 14,
-        height: 14,
+        width: 13,
+        height: 13,
       },
       {
         type: 'text',
         text: title,
-        font: { size: 'subheadline', weight: 'bold' },
+        font: { size: 16, weight: 'bold' },
         textColor: COLORS.text,
         maxLines: 1,
         minScale: 0.75,
@@ -597,7 +624,7 @@ function header(title, now) {
       {
         type: 'text',
         text: '更新 ' + formatTime(now),
-        font: { size: 'caption2', weight: 'medium' },
+        font: { size: 12, weight: 'medium' },
         textColor: COLORS.muted,
         maxLines: 1,
         minScale: 0.65,
@@ -619,7 +646,7 @@ function dayColumn(day, limit) {
       {
         type: 'text',
         text: day.title + ' ' + day.dateLabel,
-        font: { size: 'caption1', weight: 'bold' },
+        font: { size: 16, weight: 'bold' },
         textColor: COLORS.text,
         maxLines: 1,
       },
@@ -644,14 +671,14 @@ function daySection(day, limit) {
           {
             type: 'text',
             text: day.title + ' ' + day.dateLabel,
-            font: { size: 'subheadline', weight: 'bold' },
+            font: { size: 16, weight: 'bold' },
             textColor: COLORS.text,
           },
           { type: 'spacer' },
           {
             type: 'text',
             text: day.matches.length + ' 场',
-            font: { size: 'caption1', weight: 'medium' },
+            font: { size: 13, weight: 'medium' },
             textColor: COLORS.muted,
           },
         ],
@@ -672,7 +699,7 @@ function matchRows(matches, limit, showTime) {
     rows.push({
       type: 'text',
       text: '暂无比赛',
-      font: { size: 'caption1', weight: 'regular' },
+      font: { size: 12, weight: 'regular' },
       textColor: COLORS.faint,
       maxLines: 1,
     });
@@ -680,7 +707,7 @@ function matchRows(matches, limit, showTime) {
     rows.push({
       type: 'text',
       text: '另有 ' + (matches.length - limit) + ' 场',
-      font: { size: 'caption2', weight: 'medium' },
+      font: { size: 12, weight: 'medium' },
       textColor: COLORS.faint,
       maxLines: 1,
     });
@@ -726,7 +753,7 @@ function matchRow(match, showTime) {
 }
 
 function matchFont(weight, family) {
-  const font = { size: 'caption2', weight };
+  const font = { size: 12, weight };
   if (family) font.family = family;
   return font;
 }
