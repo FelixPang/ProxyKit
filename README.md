@@ -7,7 +7,7 @@ Egern and Surge rules, modules, and scripts.
 ### World Cup Schedule
 
 - Script: `egern/scripts/WorldCup_Widget.js`
-- Config snippet: `configs/WorldCup_Widget.yaml`
+- Config snippet: `egern/yaml/WorldCup_Widget.yaml`
 - Surge module: `surge/module/WorldCup_Surge.sgmodule`
 - Data source: ESPN FIFA World Cup (`fifa.world`)
 
