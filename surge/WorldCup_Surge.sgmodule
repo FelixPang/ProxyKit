@@ -1,0 +1,9 @@
+#!name=世界杯赛程
+#!desc=ESPN FIFA World Cup 赛程面板，显示北京时间昨天、今天、明天赛程。
+#!category=Panel
+
+[Panel]
+世界杯赛程 = script-name=world-cup-schedule-panel,update-interval=600
+
+[Script]
+world-cup-schedule-panel = type=generic,timeout=20,script-path=https://raw.githubusercontent.com/FelixPang/ProxyKit/main/scripts/WorldCup_Surge_Panel.js
