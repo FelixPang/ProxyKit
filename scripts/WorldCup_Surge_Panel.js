@@ -3,6 +3,11 @@
 
 var BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
 var ESPN_LEAGUE = 'fifa.world';
+var TEXT_GRID_WIDTH = {
+  status: 7,
+  home: 12,
+  score: 5
+};
 
 var TEAM_DATA = {
   ARG: team('阿根廷', 'AR', ['Argentina']),
@@ -100,15 +105,11 @@ function hasLiveMatch(matches) {
 
 function matchText(match) {
   var status = matchStatusLine(match);
-  return formatTime(match.kickoff) + '  ' + status + '  ' + matchLine(match);
+  return formatTime(match.kickoff) + '  ' + padDisplayEnd(status, TEXT_GRID_WIDTH.status) + '  ' + matchLine(match);
 }
 
 function matchLine(match) {
-  var score = scoreText(match);
-  if (score && (match.status === 'finished' || match.status === 'live')) {
-    return homeDisplay(match) + score + awayDisplay(match);
-  }
-  return homeDisplay(match) + 'vs' + awayDisplay(match);
+  return padDisplayStart(homeDisplay(match), TEXT_GRID_WIDTH.home) + padDisplayCenter(scoreOrVs(match), TEXT_GRID_WIDTH.score) + awayDisplay(match);
 }
 
 function matchStatusLine(match) {
@@ -124,6 +125,12 @@ function matchStatusLine(match) {
 function scoreText(match) {
   if (match.homeScore == null || match.awayScore == null) return '';
   return match.homeScore + '-' + match.awayScore;
+}
+
+function scoreOrVs(match) {
+  var score = scoreText(match);
+  if (score && (match.status === 'finished' || match.status === 'live')) return score;
+  return 'vs';
 }
 
 function homeDisplay(match) {
@@ -311,6 +318,62 @@ function formatTime(date) {
 
 function pad(value) {
   return String(value).padStart(2, '0');
+}
+
+function padDisplayStart(value, width) {
+  var text = String(value || '');
+  var gap = width - displayWidth(text);
+  return repeatSpace(gap) + text;
+}
+
+function padDisplayEnd(value, width) {
+  var text = String(value || '');
+  var gap = width - displayWidth(text);
+  return text + repeatSpace(gap);
+}
+
+function padDisplayCenter(value, width) {
+  var text = String(value || '');
+  var gap = width - displayWidth(text);
+  var left = Math.floor(gap / 2);
+  var right = gap - left;
+  return repeatSpace(left) + text + repeatSpace(right);
+}
+
+function repeatSpace(count) {
+  if (count <= 0) return '';
+  return new Array(Math.floor(count / 2) + 1).join('　') + (count % 2 ? ' ' : '');
+}
+
+function displayWidth(value) {
+  var text = String(value || '');
+  var width = 0;
+
+  for (var i = 0; i < text.length; i += 1) {
+    var code = text.charCodeAt(i);
+    if (code >= 0xD800 && code <= 0xDBFF && i + 1 < text.length) {
+      width += 2;
+      i += 1;
+    } else if (
+      code >= 0x1100 &&
+      (code <= 0x115F ||
+        code === 0x2329 ||
+        code === 0x232A ||
+        (code >= 0x2E80 && code <= 0xA4CF) ||
+        (code >= 0xAC00 && code <= 0xD7A3) ||
+        (code >= 0xF900 && code <= 0xFAFF) ||
+        (code >= 0xFE10 && code <= 0xFE19) ||
+        (code >= 0xFE30 && code <= 0xFE6F) ||
+        (code >= 0xFF00 && code <= 0xFF60) ||
+        (code >= 0xFFE0 && code <= 0xFFE6))
+    ) {
+      width += 2;
+    } else {
+      width += 1;
+    }
+  }
+
+  return width;
 }
 
 function team(cnName, alpha2, aliases) {
