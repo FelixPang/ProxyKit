@@ -12,6 +12,10 @@ const COLORS = {
   muted: { light: '#68737D', dark: '#A7B0B8' },
   faint: { light: '#8A949E', dark: '#7F8A94' },
   accent: { light: '#0A7A5A', dark: '#35D399' },
+  qualify: { light: '#0A7A5A', dark: '#35D399' },
+  qualifyBg: { light: '#E6F4EF', dark: '#17352B' },
+  pending: { light: '#B7791F', dark: '#FFD166' },
+  pendingBg: { light: '#FFF4D6', dark: '#3A2E16' },
   trophy: { light: '#D4A017', dark: '#FFD60A' },
   error: { light: '#D70015', dark: '#FF453A' },
 };
@@ -275,9 +279,9 @@ function groupLabelFromNode(node, path, fallbackIndex) {
 
 function normalizeGroup(group, fallbackIndex) {
   const label = normalizeGroupLabel(group.label) || ('小组 ' + fallbackIndex);
-  const rows = group.rows.map(function(row, index) {
+  const rows = group.rows.map(function(row) {
     const normalized = normalizeStandingRow(row);
-    normalized.rank = row.rank || index + 1;
+    normalized.rank = row.rank;
     return normalized;
   }).sort(compareRows).map(function(row, index) {
     row.rank = index + 1;
@@ -606,7 +610,7 @@ function renderRectangular(state) {
 }
 
 function renderSmall(state, env, now) {
-  const groups = pagedGroups(state.groups, env, 'systemSmall');
+  const selected = selectedGroupState(state.groups, env);
   return {
     type: 'widget',
     padding: 12,
@@ -615,15 +619,16 @@ function renderSmall(state, env, now) {
     refreshAfter: refreshAfter(now, env),
     children: [
       header('积分榜', now, true),
-      state.error ? errorText(state.error) : groupCard(groups.visible[0], true),
-      footer(groups),
+      state.error ? null : groupSelector(selected.groups, selected.group, true, env),
+      state.error ? errorText(state.error) : groupCard(selected.group, true),
+      legend(true),
     ].filter(Boolean),
   };
 }
 
 function renderTable(state, env, now, family) {
-  const groups = pagedGroups(state.groups, env, family);
-  const columns = family === 'systemExtraLarge' ? 3 : 2;
+  const selected = selectedGroupState(state.groups, env);
+  const compact = family === 'systemMedium';
   return {
     type: 'widget',
     padding: 14,
@@ -632,40 +637,81 @@ function renderTable(state, env, now, family) {
     refreshAfter: refreshAfter(now, env),
     children: [
       header('世界杯小组积分', now, false),
-      state.error ? errorText(state.error) : groupGrid(groups.visible, columns, family === 'systemMedium'),
-      footer(groups),
+      state.error ? null : groupSelector(selected.groups, selected.group, compact, env),
+      state.error ? errorText(state.error) : groupCard(selected.group, compact),
+      legend(false),
     ].filter(Boolean),
   };
 }
 
-function groupGrid(groups, columns, compact) {
-  if (!groups.length) return emptyText();
-  const rows = [];
-  for (let index = 0; index < groups.length; index += columns) {
-    rows.push({
-      type: 'stack',
-      direction: 'row',
-      gap: 8,
-      children: groups.slice(index, index + columns).map(function(group) {
-        return groupCard(group, compact);
-      }),
-    });
-  }
+function groupSelector(groups, activeGroup, compact, env) {
+  if (!groups.length) return null;
   return {
     type: 'stack',
-    direction: 'column',
-    gap: 8,
-    children: rows,
+    direction: 'row',
+    gap: compact ? 4 : 5,
+    children: groups.map(function(group) {
+      const active = activeGroup && group.label === activeGroup.label;
+      return {
+        type: 'stack',
+        width: compact ? 20 : 24,
+        padding: compact ? [3, 0, 3, 0] : [4, 0, 4, 0],
+        borderRadius: 6,
+        backgroundColor: active ? COLORS.accent : COLORS.cardSubtle,
+        url: groupTabUrl(group, env),
+        children: [
+          text(groupTabText(group.label), { size: compact ? 9 : 10, weight: 'bold' }, active ? '#FFFFFF' : COLORS.muted, {
+            textAlign: 'center',
+            maxLines: 1,
+            minScale: 0.7,
+          }),
+        ],
+      };
+    }),
+  };
+}
+
+function groupTabUrl(group, env) {
+  if (!env.GROUP_URL_TEMPLATE) return undefined;
+  return String(env.GROUP_URL_TEMPLATE).replace(/\{group\}/g, encodeURIComponent(groupTabText(group.label)));
+}
+
+function groupTabText(label) {
+  const match = String(label || '').match(/([A-L])组/);
+  return match ? match[1] : String(label || '').replace(/小组|组/g, '').slice(0, 2);
+}
+
+function legend(compact) {
+  return {
+    type: 'stack',
+    direction: 'row',
+    gap: 10,
+    children: [
+      legendItem('出线区', COLORS.qualify, compact),
+      legendItem('待定区', COLORS.pending, compact),
+      { type: 'spacer' },
+    ],
+  };
+}
+
+function legendItem(label, color, compact) {
+  return {
+    type: 'stack',
+    direction: 'row',
+    alignItems: 'center',
+    gap: 4,
+    children: [
+      { type: 'stack', width: 7, height: 7, borderRadius: 3.5, backgroundColor: color, children: [] },
+      text(label, { size: compact ? 8 : 9, weight: 'medium' }, COLORS.faint, { maxLines: 1 }),
+    ],
   };
 }
 
 function groupCard(group, compact) {
   if (!group) return emptyText();
-  const rows = group.rows.slice(0, 4);
   return {
     type: 'stack',
     direction: 'column',
-    flex: 1,
     gap: compact ? 3 : 4,
     padding: compact ? [7, 8, 7, 8] : [8, 9, 8, 9],
     backgroundColor: COLORS.card,
@@ -678,11 +724,11 @@ function groupCard(group, compact) {
         children: [
           text(group.label, { size: compact ? 10 : 11, weight: 'bold' }, COLORS.text, { maxLines: 1 }),
           { type: 'spacer' },
-          text('分', { size: 9, weight: 'semibold' }, COLORS.faint, { width: 20, textAlign: 'right' }),
+          text('积分', { size: 9, weight: 'semibold' }, COLORS.faint, { width: 28, textAlign: 'right' }),
         ],
       },
       tableHeader(compact),
-      ...rows.map(function(row) {
+      ...group.rows.slice(0, 4).map(function(row) {
         return standingRow(row, compact);
       }),
     ],
@@ -698,25 +744,35 @@ function tableHeader(compact) {
     children: [
       text('#', { size, weight: 'medium' }, COLORS.faint, { width: 14 }),
       text('球队', { size, weight: 'medium' }, COLORS.faint, { flex: 1 }),
-      text('赛', { size, weight: 'medium' }, COLORS.faint, { width: 18, textAlign: 'right' }),
-      text('净', { size, weight: 'medium' }, COLORS.faint, { width: 22, textAlign: 'right' }),
-      text('分', { size, weight: 'medium' }, COLORS.faint, { width: 22, textAlign: 'right' }),
+      text('赛', { size, weight: 'medium' }, COLORS.faint, { width: 18, textAlign: 'center' }),
+      text('胜/平/负', { size, weight: 'medium' }, COLORS.faint, { width: compact ? 46 : 54, textAlign: 'center', minScale: 0.6 }),
+      text('进/失', { size, weight: 'medium' }, COLORS.faint, { width: compact ? 36 : 44, textAlign: 'center', minScale: 0.6 }),
+      text('积分', { size, weight: 'medium' }, COLORS.faint, { width: compact ? 26 : 30, textAlign: 'right' }),
     ],
   };
 }
 
 function standingRow(row, compact) {
   const size = compact ? 8 : 9;
+  const zone = row.rank <= 2 ? 'qualify' : row.rank === 3 ? 'pending' : 'normal';
+  const zoneColor = zone === 'qualify' ? COLORS.qualify : zone === 'pending' ? COLORS.pending : COLORS.faint;
+  const zoneBg = zone === 'qualify' ? COLORS.qualifyBg : zone === 'pending' ? COLORS.pendingBg : undefined;
   return {
     type: 'stack',
     direction: 'row',
     alignItems: 'center',
+    gap: 3,
+    padding: compact ? [2, 4, 2, 0] : [3, 5, 3, 0],
+    borderRadius: 6,
+    backgroundColor: zoneBg,
     children: [
-      text(String(row.rank), { size, weight: row.rank <= 2 ? 'bold' : 'medium' }, row.rank <= 2 ? COLORS.accent : COLORS.muted, { width: 14, maxLines: 1 }),
+      { type: 'stack', width: 3, height: compact ? 12 : 14, borderRadius: 2, backgroundColor: zoneColor, children: [] },
+      text(String(row.rank), { size, weight: row.rank <= 3 ? 'bold' : 'medium' }, zone === 'normal' ? COLORS.muted : zoneColor, { width: 12, maxLines: 1 }),
       text((row.flag || '') + row.team, { size, weight: 'semibold' }, COLORS.text, { flex: 1, maxLines: 1, minScale: 0.45 }),
-      text(String(row.played), { size, weight: 'medium' }, COLORS.muted, { width: 18, textAlign: 'right', maxLines: 1 }),
-      text(formatSigned(row.goalDiff), { size, weight: 'medium' }, COLORS.muted, { width: 22, textAlign: 'right', maxLines: 1 }),
-      text(String(row.points), { size, weight: 'bold' }, COLORS.text, { width: 22, textAlign: 'right', maxLines: 1 }),
+      text(String(row.played), { size, weight: 'medium' }, COLORS.muted, { width: 18, textAlign: 'center', maxLines: 1 }),
+      text(row.wins + '/' + row.draws + '/' + row.losses, { size, weight: 'medium' }, COLORS.muted, { width: compact ? 46 : 54, textAlign: 'center', maxLines: 1, minScale: 0.55 }),
+      text(row.goalsFor + '/' + row.goalsAgainst, { size, weight: 'medium' }, COLORS.muted, { width: compact ? 36 : 44, textAlign: 'center', maxLines: 1, minScale: 0.55 }),
+      text(String(row.points), { size, weight: 'bold' }, COLORS.text, { width: compact ? 26 : 30, textAlign: 'right', maxLines: 1 }),
     ],
   };
 }
@@ -734,11 +790,6 @@ function header(title, now, compact) {
       text('更新 ' + formatTime(now), { size: compact ? 9 : 10, weight: 'medium' }, COLORS.muted, { maxLines: 1, minScale: 0.6 }),
     ],
   };
-}
-
-function footer(groups) {
-  if (!groups.total) return null;
-  return text('第 ' + groups.page + '/' + groups.pages + ' 页 · 共 ' + groups.total + ' 组', { size: 9, weight: 'medium' }, COLORS.faint, { maxLines: 1, minScale: 0.65 });
 }
 
 function errorText(message) {
@@ -760,19 +811,19 @@ function emptyText() {
   return text('暂无小组积分数据', { size: 11, weight: 'semibold' }, COLORS.muted, { maxLines: 2, minScale: 0.6 });
 }
 
-function pagedGroups(groups, env, family) {
-  const total = groups.length;
-  const defaultSize = family === 'systemSmall' ? 1 : family === 'systemMedium' ? 2 : family === 'systemExtraLarge' ? 9 : 4;
-  const pageSize = Math.max(1, Number(env.MAX_GROUPS || defaultSize));
-  const pages = Math.max(1, Math.ceil(total / pageSize));
-  const page = Math.min(pages, Math.max(1, Number(env.GROUP_PAGE || 1)));
-  const start = (page - 1) * pageSize;
-  return {
-    total,
-    page,
-    pages,
-    visible: groups.slice(start, start + pageSize),
-  };
+function selectedGroupState(groups, env) {
+  const selected = normalizeSelectedGroup(env.GROUP || env.GROUP_KEY || env.GROUP_NAME || 'A');
+  let group = groups.find(function(item) {
+    return normalizeSelectedGroup(item.label) === selected;
+  });
+  if (!group) group = groups[0];
+  return { groups, group };
+}
+
+function normalizeSelectedGroup(value) {
+  const text = String(value || '').trim();
+  const match = text.match(/[A-L]/i);
+  return match ? match[0].toUpperCase() : text;
 }
 
 function firstLeader(groups) {
