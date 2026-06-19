@@ -3,6 +3,7 @@ const DEFAULT_LEAGUE = 'fifa.world';
 const DEFAULT_SEASON = '2026';
 const DEFAULT_GROUP_STAGE_START = '20260611';
 const DEFAULT_GROUP_STAGE_END = '20260628';
+const DEFAULT_ROTATE_SECONDS = 7;
 
 const COLORS = {
   background: { light: '#F7F9FC', dark: '#101418' },
@@ -613,7 +614,7 @@ function renderRectangular(state) {
 }
 
 function renderSmall(state, env, now) {
-  const selected = selectedGroupState(state.groups, env);
+  const selected = selectedGroupState(state.groups, env, now);
   return {
     type: 'widget',
     padding: 0,
@@ -626,7 +627,7 @@ function renderSmall(state, env, now) {
 }
 
 function renderTable(state, env, now, family) {
-  const selected = selectedGroupState(state.groups, env);
+  const selected = selectedGroupState(state.groups, env, now);
   const compact = family === 'systemMedium';
   return {
     type: 'widget',
@@ -772,8 +773,15 @@ function emptyPanel(compact) {
   };
 }
 
-function selectedGroupState(groups, env) {
-  const selected = normalizeSelectedGroup(env.GROUP || env.GROUP_KEY || env.GROUP_NAME || 'A');
+function selectedGroupState(groups, env, now) {
+  const manualGroup = env.GROUP || env.GROUP_KEY || env.GROUP_NAME;
+  if (!manualGroup && groups.length) {
+    const seconds = rotateSeconds(env);
+    const index = Math.floor(now.getTime() / (seconds * 1000)) % groups.length;
+    return { groups, group: groups[index] };
+  }
+
+  const selected = normalizeSelectedGroup(manualGroup || 'A');
   let group = groups.find(function(item) {
     return normalizeSelectedGroup(item.label) === selected;
   });
@@ -804,8 +812,11 @@ function text(value, font, color, extra) {
 }
 
 function refreshAfter(now, env) {
-  const minutes = Math.max(1, Number(env.REFRESH_MINUTES || 10));
-  return new Date(now.getTime() + minutes * 60 * 1000).toISOString();
+  return new Date(now.getTime() + rotateSeconds(env) * 1000).toISOString();
+}
+
+function rotateSeconds(env) {
+  return Math.max(1, Number(env.ROTATE_SECONDS || env.CAROUSEL_SECONDS || env.REFRESH_SECONDS || DEFAULT_ROTATE_SECONDS));
 }
 
 function formatSigned(value) {

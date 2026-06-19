@@ -31,6 +31,7 @@ https://raw.githubusercontent.com/vfelix7/rule_module_script/refs/heads/master/s
 - Config snippet: `egern/yaml/WorldCup_Group_Standings_Widget.yaml`
 - Data source: ESPN FIFA World Cup (`fifa.world`)
 - Layout: green group card, qualification/pending section marks, and table columns `场次` / `胜/平/负` / `进/失` / `积分`
+- Rotation: auto-rotates groups every 7 seconds by default
 
 Egern widget config:
 
@@ -38,14 +39,15 @@ Egern widget config:
 https://raw.githubusercontent.com/vfelix7/rule_module_script/refs/heads/master/egern/yaml/WorldCup_Group_Standings_Widget.yaml
 ```
 
-Default group selection:
+Optional env:
 
 ```yaml
 env:
-  GROUP: "A"
+  ROTATE_SECONDS: "7"
+  # GROUP: "A"
 ```
 
-The active group is controlled by `GROUP` in the widget environment.
+Set `GROUP` only when you want to pin a specific group instead of rotating.
 
 ### QWeather
 
