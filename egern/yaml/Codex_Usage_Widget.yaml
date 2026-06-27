@@ -20,4 +20,4 @@ widgets:
 #
 # 可选：
 # TIME_ZONE: "Asia/Shanghai"
-# REFRESH_MINUTES: "15"
+# REFRESH_MINUTES: "5"

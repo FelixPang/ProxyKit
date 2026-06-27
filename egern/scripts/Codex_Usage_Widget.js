@@ -8,7 +8,7 @@
  *   CODEX_ACCOUNT_ID: ChatGPT account ID
  *   CODEX_USAGE_URL: Usage API URL
  *   TIME_ZONE: Reset-time zone. Default: Asia/Shanghai
- *   REFRESH_MINUTES: Refresh interval. Default: 15
+ *   REFRESH_MINUTES: Refresh interval. Default: 5
  */
 
 const DEFAULT_USAGE_URL = 'https://chatgpt.com/backend-api/wham/usage';
@@ -41,7 +41,7 @@ export default async function(ctx) {
   const accountId = String(env.CODEX_ACCOUNT_ID || '').trim();
   const usageUrl = String(env.CODEX_USAGE_URL || DEFAULT_USAGE_URL).trim();
   const timeZone = String(env.TIME_ZONE || 'Asia/Shanghai').trim();
-  const refreshMinutes = clampNumber(env.REFRESH_MINUTES, 15, 5, 60);
+  const refreshMinutes = clampNumber(env.REFRESH_MINUTES, 5, 5, 60);
   const family = ctx.widgetFamily || 'systemMedium';
 
   if (!token) {
@@ -91,11 +91,13 @@ async function fetchUsage(ctx, url, token, accountId) {
 
   const headers = {
     Accept: 'application/json',
-    Authorization: `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
+    'Cache-Control': 'no-cache',
+    Pragma: 'no-cache'
   };
   if (accountId) headers['ChatGPT-Account-Id'] = accountId;
 
-  const response = await ctx.http.get(url, {
+  const response = await ctx.http.get(appendCacheBuster(url), {
     headers,
     timeout: 10000,
     credentials: 'omit'
@@ -112,6 +114,11 @@ async function fetchUsage(ctx, url, token, accountId) {
   if (typeof response?.body === 'string') return JSON.parse(response.body);
   if (typeof response === 'string') return JSON.parse(response);
   throw new Error('接口响应格式异常');
+}
+
+function appendCacheBuster(url) {
+  const separator = String(url).includes('?') ? '&' : '?';
+  return `${url}${separator}_ts=${Date.now()}`;
 }
 
 function parseUsage(payload) {
