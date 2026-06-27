@@ -13,8 +13,7 @@
 const API_URL = 'https://my.ippure.com/v1/info'
 
 const C = {
-  bg0: { light: '#F6F8FA', dark: '#0D1117' },
-  bg1: { light: '#FFFFFF', dark: '#161B22' },
+  transparent: { light: '#FFFFFF00', dark: '#00000000' },
   card: { light: '#FFFFFF', dark: '#1C1C1E' },
   hairline: { light: '#D0D7DE', dark: '#30363D' },
   text: { light: '#24292F', dark: '#F0F6FC' },
@@ -107,7 +106,7 @@ function errorWidget(title, msg, detail, refreshMinutes) {
   return {
     type: 'widget',
     refreshAfter: nextRefresh(refreshMinutes),
-    backgroundGradient: backgroundGradient(),
+    backgroundColor: C.transparent,
     padding: 14,
     gap: 8,
     children: [
@@ -213,7 +212,7 @@ function smallWidget(m) {
   return {
     type: 'widget',
     refreshAfter: nextRefresh(m.refreshMinutes),
-    backgroundGradient: backgroundGradient(),
+    backgroundColor: C.transparent,
     padding: 13,
     gap: 7,
     url: 'egern://',
@@ -250,7 +249,7 @@ function mainWidget(m, isLarge) {
   return {
     type: 'widget',
     refreshAfter: nextRefresh(m.refreshMinutes),
-    backgroundGradient: backgroundGradient(),
+    backgroundColor: C.transparent,
     padding: 14,
     gap: 0,
     url: 'egern://',
@@ -551,15 +550,6 @@ function asnRow(m) {
         ],
       },
     ],
-  }
-}
-
-function backgroundGradient() {
-  return {
-    type: 'linear',
-    colors: [C.bg0, C.bg1],
-    startPoint: { x: 0, y: 0 },
-    endPoint: { x: 1, y: 1 },
   }
 }
 
