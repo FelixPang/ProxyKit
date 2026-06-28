@@ -361,7 +361,7 @@ function primaryCheckItem(item) {
     direction: 'row',
     alignItems: 'center',
     gap: 7,
-    width: 106,
+    width: 98,
     height: 24,
     children: [
       {
@@ -378,8 +378,9 @@ function primaryCheckItem(item) {
       {
         type: 'stack',
         direction: 'column',
+        alignItems: 'start',
         gap: 1,
-        width: 75,
+        width: 67,
         children: [
           text(item.label, 9, C.dim, 'semibold', { minScale: 0.72 }),
           text(item.value, 11, valueColor, 'semibold', { minScale: 0.68 })
@@ -498,7 +499,7 @@ function mediumWidget(data, ctx) {
         type: 'stack',
         direction: 'row',
         alignItems: 'center',
-        gap: 0,
+        gap: 6,
         width: 320,
         children: [
           primaryCheckItem(primaryChecks[0]),
