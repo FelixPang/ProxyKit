@@ -306,7 +306,7 @@ function header(data) {
     type: 'stack',
     direction: 'row',
     alignItems: 'center',
-    gap: 7,
+    gap: 12,
     children: [
       icon('checkmark.shield', C.accent, 14),
       text('SECURITY CHECK', 10, C.dim, 'bold'),
@@ -398,16 +398,36 @@ function verticalDivider(height) {
   };
 }
 
-function auxiliaryItem(symbol, label, value, state = 'pass') {
+function dnsBadge() {
+  return {
+    type: 'stack',
+    direction: 'row',
+    alignItems: 'center',
+    width: 14,
+    height: 14,
+    borderWidth: 1,
+    borderColor: C.dim,
+    borderRadius: 7,
+    padding: [4, 1, 4, 1],
+    children: [
+      text('DNS', 5, C.dim, 'bold', {
+        textAlign: 'center',
+        minScale: 0.8
+      })
+    ]
+  };
+}
+
+function auxiliaryItem(symbol, label, value, state = 'pass', width = 0, customIcon = null) {
   const valueColor = state === 'pass' ? C.text : stateColor(state);
   return {
     type: 'stack',
     direction: 'row',
     alignItems: 'center',
     gap: 5,
-    flex: 1,
+    width,
     children: [
-      icon(symbol, C.dim, 12),
+      customIcon || icon(symbol, C.dim, 12),
       text(label, 9, C.dim, 'medium', { minScale: 0.72 }),
       text(value, 10, valueColor, 'semibold', { minScale: 0.68 })
     ]
@@ -425,7 +445,7 @@ function mediumWidget(data, ctx) {
     type: 'widget',
     backgroundColor: C.bg,
     padding: [11, 16, 11, 16],
-    gap: 6,
+    gap: 4,
     refreshAfter: new Date(Date.now() + refreshMinutes * 60 * 1000).toISOString(),
     children: [
       header(data),
@@ -438,9 +458,10 @@ function mediumWidget(data, ctx) {
             type: 'stack',
             direction: 'column',
             gap: 1,
+            padding: [0, 0, 0, 3],
             children: [
-              text(`${data.passed}/${data.total}`, 28, C.text, 'bold', {
-                font: { size: 28, weight: 'bold', family: 'Menlo' }
+              text(`${data.passed}/${data.total}`, 30, C.text, 'bold', {
+                font: { size: 30, weight: 'bold', family: 'Menlo' }
               }),
               text('项检查通过', 10, C.dim, 'medium')
             ]
@@ -458,6 +479,7 @@ function mediumWidget(data, ctx) {
           }
         ]
       },
+      { type: 'spacer', length: 5 },
       {
         type: 'stack',
         direction: 'row',
@@ -471,18 +493,19 @@ function mediumWidget(data, ctx) {
           primaryCheckItem(primaryChecks[2])
         ]
       },
-      { type: 'stack', height: 1, backgroundColor: C.hairline, children: [] },
+      { type: 'stack', width: 320, height: 1, backgroundColor: C.hairline, children: [] },
+      { type: 'spacer', length: 3 },
       {
         type: 'stack',
         direction: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 6,
         children: [
-          auxiliaryItem(checkSymbol('portal'), '强制门户', portal.value, portal.state),
+          auxiliaryItem(checkSymbol('portal'), '强制门户', portal.value, portal.state, 86),
           verticalDivider(18),
-          auxiliaryItem('network', 'DNS 泄漏', dnsLeak.value, dnsLeak.state),
+          auxiliaryItem('network', 'DNS 泄漏', dnsLeak.value, dnsLeak.state, 136, dnsBadge()),
           verticalDivider(18),
-          auxiliaryItem('server.rack', '解析器', String(data.dnsCount))
+          auxiliaryItem('server.rack', '解析器', String(data.dnsCount), 'pass', 72)
         ]
       }
     ]
