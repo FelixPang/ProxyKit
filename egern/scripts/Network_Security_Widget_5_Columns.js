@@ -306,7 +306,7 @@ function header(data) {
     type: 'stack',
     direction: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 7,
     children: [
       icon('checkmark.shield', C.accent, 14),
       text('SECURITY CHECK', 10, C.dim, 'bold'),
@@ -360,32 +360,40 @@ function primaryCheckItem(item) {
     type: 'stack',
     direction: 'row',
     alignItems: 'center',
-    gap: 7,
-    width: 98,
-    height: 24,
+    width: 106,
+    height: 34,
     children: [
+      { type: 'spacer' },
       {
         type: 'stack',
         direction: 'row',
         alignItems: 'center',
-        width: 24,
-        height: 24,
-        padding: 5.5,
-        backgroundColor: C.accentSoft,
-        borderRadius: 12,
-        children: [icon(checkSymbol(item.id), symbolColor, 13)]
-      },
-      {
-        type: 'stack',
-        direction: 'column',
-        alignItems: 'start',
-        gap: 1,
-        width: 67,
+        gap: 10,
         children: [
-          text(item.label, 9, C.dim, 'semibold', { minScale: 0.72 }),
-          text(item.value, 11, valueColor, 'semibold', { minScale: 0.68 })
+          {
+            type: 'stack',
+            direction: 'row',
+            alignItems: 'center',
+            width: 24,
+            height: 24,
+            padding: 5.5,
+            backgroundColor: C.accentSoft,
+            borderRadius: 12,
+            children: [icon(checkSymbol(item.id), symbolColor, 13)]
+          },
+          {
+            type: 'stack',
+            direction: 'column',
+            alignItems: 'start',
+            gap: 4,
+            children: [
+              text(item.label, 9, C.dim, 'semibold', { minScale: 0.72 }),
+              text(item.value, 11, valueColor, 'semibold', { minScale: 0.68 })
+            ]
+          }
         ]
-      }
+      },
+      { type: 'spacer' }
     ]
   };
 }
@@ -432,19 +440,28 @@ function dnsBadge() {
   };
 }
 
-function auxiliaryItem(symbol, label, value, state = 'pass', width = 0, customIcon = null) {
+function auxiliaryItem(symbol, label, value, state = 'pass', customIcon = null) {
   const valueColor = state === 'pass' ? C.text : stateColor(state);
   return {
     type: 'stack',
     direction: 'row',
     alignItems: 'center',
-    gap: 5,
-    width,
-    height: 18,
+    width: 106,
+    height: 21,
     children: [
-      customIcon || auxiliaryIcon(symbol),
-      text(label, 9, C.dim, 'medium', { minScale: 0.72 }),
-      text(value, 10, valueColor, 'semibold', { minScale: 0.68 })
+      { type: 'spacer' },
+      {
+        type: 'stack',
+        direction: 'row',
+        alignItems: 'center',
+        gap: 7,
+        children: [
+          customIcon || auxiliaryIcon(symbol),
+          text(label, 9, C.dim, 'medium', { minScale: 0.72 }),
+          text(value, 10, valueColor, 'semibold', { minScale: 0.68 })
+        ]
+      },
+      { type: 'spacer' }
     ]
   };
 }
@@ -499,13 +516,13 @@ function mediumWidget(data, ctx) {
         type: 'stack',
         direction: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 0,
         width: 320,
         children: [
           primaryCheckItem(primaryChecks[0]),
-          verticalDivider(24),
+          verticalDivider(28),
           primaryCheckItem(primaryChecks[1]),
-          verticalDivider(24),
+          verticalDivider(28),
           primaryCheckItem(primaryChecks[2])
         ]
       },
@@ -515,13 +532,14 @@ function mediumWidget(data, ctx) {
         type: 'stack',
         direction: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 0,
+        width: 320,
         children: [
-          auxiliaryItem(checkSymbol('portal'), '强制门户', portal.value, portal.state, 86),
-          verticalDivider(18),
-          auxiliaryItem('network', 'DNS 泄漏', dnsLeak.value, dnsLeak.state, 136, dnsBadge()),
-          verticalDivider(18),
-          auxiliaryItem('server.rack', '解析器', String(data.dnsCount), 'pass', 72)
+          auxiliaryItem(checkSymbol('portal'), '强制门户', portal.value, portal.state),
+          verticalDivider(15),
+          auxiliaryItem('network', 'DNS 泄漏', dnsLeak.value, dnsLeak.state, dnsBadge()),
+          verticalDivider(15),
+          auxiliaryItem('server.rack', '解析器', String(data.dnsCount))
         ]
       }
     ]
