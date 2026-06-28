@@ -5,7 +5,7 @@ author: "vfelix7"
 scriptings:
   - generic:
       name: "codex-usage-widget"
-      script_url: "https://raw.githubusercontent.com/vfelix7/rule_module_script/208f28b2c0288f8a8806aabb624d4cec83ed3d88/egern/scripts/Codex_Usage_Widget.js"
+      script_url: "https://raw.githubusercontent.com/vfelix7/rule_module_script/09d34e238591e3711123bd060768167c453430f0/egern/scripts/Codex_Usage_Widget.js"
       timeout: 15
 
 widgets:
