@@ -1,5 +1,5 @@
 /**
- * Egern widget: Network Security Check (5-column layout)
+ * Egern widget: Network Security Check (icon panel layout)
  *
  * Create a Generic script with this file, then add it in Widget Gallery.
  * Optional env values:
@@ -21,6 +21,7 @@ const C = {
   panel:    { light: '#F5F5F7', dark: '#111114' },
   hairline: { light: '#E4E4E8', dark: '#242429' },
   accent:   { light: '#7446D8', dark: '#B765FF' },
+  accentSoft: { light: '#F2EDFF', dark: '#251832' },
   ok:       { light: '#2F9E58', dark: '#C7FF18' },
   warn:     { light: '#A06400', dark: '#FFBE3F' },
   fail:     { light: '#D64545', dark: '#FF626A' }
@@ -341,23 +342,74 @@ function checkCell(item) {
   };
 }
 
-function compactCheckCell(item) {
+function checkSymbol(id) {
+  const symbols = {
+    tunnel: 'checkmark.shield',
+    tls: 'lock',
+    portal: 'door.left.hand.open',
+    ipv6: 'globe',
+    dns: 'network'
+  };
+  return symbols[id] || 'checkmark.circle';
+}
+
+function primaryCheckItem(item) {
   const valueColor = item.state === 'pass' ? C.text : stateColor(item.state);
+  const symbolColor = item.state === 'pass' ? C.accent : stateColor(item.state);
   return {
     type: 'stack',
-    direction: 'column',
+    direction: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 8,
     flex: 1,
     children: [
-      text(item.label, 8, C.dim, 'semibold', {
-        textAlign: 'center',
-        minScale: 0.68
-      }),
-      text(item.value, 10, valueColor, 'semibold', {
-        textAlign: 'center',
-        minScale: 0.62
-      })
+      {
+        type: 'stack',
+        direction: 'row',
+        alignItems: 'center',
+        width: 30,
+        height: 30,
+        padding: 7,
+        backgroundColor: C.accentSoft,
+        borderRadius: 15,
+        children: [icon(checkSymbol(item.id), symbolColor, 16)]
+      },
+      {
+        type: 'stack',
+        direction: 'column',
+        gap: 2,
+        flex: 1,
+        children: [
+          text(item.label, 9, C.dim, 'semibold', { minScale: 0.72 }),
+          text(item.value, 11, valueColor, 'semibold', { minScale: 0.68 })
+        ]
+      }
+    ]
+  };
+}
+
+function verticalDivider(height) {
+  return {
+    type: 'stack',
+    width: 1,
+    height,
+    backgroundColor: C.hairline,
+    children: []
+  };
+}
+
+function auxiliaryItem(symbol, label, value, state = 'pass') {
+  const valueColor = state === 'pass' ? C.text : stateColor(state);
+  return {
+    type: 'stack',
+    direction: 'row',
+    alignItems: 'center',
+    gap: 5,
+    flex: 1,
+    children: [
+      icon(symbol, C.dim, 12),
+      text(label, 9, C.dim, 'medium', { minScale: 0.72 }),
+      text(value, 10, valueColor, 'semibold', { minScale: 0.68 })
     ]
   };
 }
@@ -366,17 +418,13 @@ function mediumWidget(data, ctx) {
   const showIp = boolEnv(ctx, 'SHOW_IP', false);
   const refreshMinutes = numberEnv(ctx, 'REFRESH_MINUTES', 10, 5, 60);
   const ip = showIp ? data.publicIp || '--' : maskIp(data.publicIp);
-  const mediumChecks = [
-    data.checks[0],
-    data.checks[1],
-    data.checks[3],
-    data.checks[2],
-    data.checks[4]
-  ];
+  const primaryChecks = [data.checks[0], data.checks[1], data.checks[3]];
+  const portal = data.checks[2];
+  const dnsLeak = data.checks[4];
   return {
     type: 'widget',
     backgroundColor: C.bg,
-    padding: [13, 16, 13, 16],
+    padding: [11, 16, 11, 16],
     gap: 6,
     refreshAfter: new Date(Date.now() + refreshMinutes * 60 * 1000).toISOString(),
     children: [
@@ -410,13 +458,32 @@ function mediumWidget(data, ctx) {
           }
         ]
       },
+      {
+        type: 'stack',
+        direction: 'row',
+        alignItems: 'center',
+        gap: 8,
+        children: [
+          primaryCheckItem(primaryChecks[0]),
+          verticalDivider(30),
+          primaryCheckItem(primaryChecks[1]),
+          verticalDivider(30),
+          primaryCheckItem(primaryChecks[2])
+        ]
+      },
       { type: 'stack', height: 1, backgroundColor: C.hairline, children: [] },
       {
         type: 'stack',
         direction: 'row',
         alignItems: 'center',
-        gap: 4,
-        children: mediumChecks.map(compactCheckCell)
+        gap: 8,
+        children: [
+          auxiliaryItem(checkSymbol('portal'), '强制门户', portal.value, portal.state),
+          verticalDivider(18),
+          auxiliaryItem('network', 'DNS 泄漏', dnsLeak.value, dnsLeak.state),
+          verticalDivider(18),
+          auxiliaryItem('server.rack', '解析器', String(data.dnsCount))
+        ]
       }
     ]
   };
